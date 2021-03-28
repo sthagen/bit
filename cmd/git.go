@@ -2,7 +2,8 @@ package cmd
 
 import (
 	"fmt"
-	"os/exec"
+	exec "golang.org/x/sys/execabs"
+	"os"
 	"strings"
 
 	"github.com/rs/zerolog/log"
@@ -98,10 +99,9 @@ func refreshBranch() error {
 	if err != nil {
 		return err
 	}
-	if strings.Contains(strings.TrimSpace(string(msg)), "up to date") {
-		return nil
+	if strings.Contains(strings.TrimSpace(string(msg)), "Fast-forward") {
+		fmt.Println("Branch was fast-forwarded by bit")
 	}
-	fmt.Println("Branch was fast-forwarded by bit")
 	return nil
 }
 
@@ -205,6 +205,7 @@ func tagCurrentBranch(version string) error {
 func execCommand(name string, arg ...string) *exec.Cmd {
 	log.Debug().Msg(name + " " + strings.Join(arg, " "))
 	c := exec.Command(name, arg...)
+	c.Env = os.Environ()
 
 	if name == "git" {
 		// exec commands are parsed by bit without getting printed.
